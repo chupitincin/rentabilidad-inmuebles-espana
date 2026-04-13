@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Rentabilidad Inmobiliaria - España</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+</head>
+<body>
+    <header>
+        <h1>Calculadora de Rentabilidad Inmobiliaria</h1>
+        <p class="subtitle">Analiza la rentabilidad de compra y alquiler de inmuebles en España</p>
+    </header>
+
+    <main>
+        <div class="calculator-grid">
+            <!-- DATOS DEL INMUEBLE -->
+            <section class="card" id="datos-inmueble">
+                <h2>Datos del Inmueble</h2>
+                <div class="form-group">
+                    <label for="precio-compra">Precio de compra</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="precio-compra" value="150000" min="0" step="1000">
+                        <span class="suffix">&euro;</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tipo-vivienda">Tipo de vivienda</label>
+                    <select id="tipo-vivienda">
+                        <option value="segunda-mano" selected>Segunda mano</option>
+                        <option value="obra-nueva">Obra nueva</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="comunidad">Comunidad Autonoma</label>
+                    <select id="comunidad">
+                        <option value="andalucia">Andalucia</option>
+                        <option value="aragon">Aragon</option>
+                        <option value="asturias">Asturias</option>
+                        <option value="baleares">Islas Baleares</option>
+                        <option value="canarias">Islas Canarias</option>
+                        <option value="cantabria">Cantabria</option>
+                        <option value="castilla-la-mancha">Castilla-La Mancha</option>
+                        <option value="castilla-y-leon">Castilla y Leon</option>
+                        <option value="cataluna">Cataluna</option>
+                        <option value="extremadura">Extremadura</option>
+                        <option value="galicia">Galicia</option>
+                        <option value="madrid" selected>Madrid</option>
+                        <option value="murcia">Murcia</option>
+                        <option value="navarra">Navarra</option>
+                        <option value="pais-vasco">Pais Vasco</option>
+                        <option value="la-rioja">La Rioja</option>
+                        <option value="valencia">Comunidad Valenciana</option>
+                        <option value="ceuta">Ceuta</option>
+                        <option value="melilla">Melilla</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reforma">Coste de reforma</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="reforma" value="0" min="0" step="500">
+                        <span class="suffix">&euro;</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GASTOS DE COMPRA -->
+            <section class="card" id="gastos-compra">
+                <h2>Gastos de Compra <span class="auto-badge">Auto</span></h2>
+                <div class="form-group">
+                    <label for="itp">ITP / IVA + AJD</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="itp" value="0" min="0" step="100" readonly>
+                        <span class="suffix">&euro;</span>
+                    </div>
+                    <small id="itp-info" class="info-text"></small>
+                </div>
+                <div class="form-group">
+                    <label for="notaria">Notaria</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="notaria" value="800" min="0" step="50">
+                        <span class="suffix">&euro;</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registro">Registro de la Propiedad</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="registro" value="400" min="0" step="50">
+                        <span class="suffix">&euro;</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="gestoria">Gestoria</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="gestoria" value="400" min="0" step="50">
+                        <span class="suffix">&euro;</span>
+                    </div>
+                </div>
+                <div class="form-group total-row">
+                    <label>Total gastos de compra</label>
+                    <span id="total-gastos-compra" class="total-value">0 &euro;</span>
+                </div>
+            </section>
+
+            <!-- HIPOTECA -->
+            <section class="card" id="hipoteca-section">
+                <h2>Hipoteca</h2>
+                <div class="form-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="con-hipoteca" checked>
+                        <span>Financiar con hipoteca</span>
+                    </label>
+                </div>
+                <div id="hipoteca-fields">
+                    <div class="form-group">
+                        <label for="porcentaje-financiado">Porcentaje financiado</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="porcentaje-financiado" value="80" min="0" max="100" step="5">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="anos-hipoteca">Plazo</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="anos-hipoteca" value="25" min="1" max="40" step="1">
+                            <span class="suffix">años</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="interes">Tipo de interes (TIN)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="interes" value="3.0" min="0" max="15" step="0.1">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Capital financiado</label>
+                        <span id="capital-financiado">0 &euro;</span>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Cuota mensual</label>
+                        <span id="cuota-mensual" class="highlight">0 &euro;</span>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Total intereses pagados</label>
+                        <span id="total-intereses">0 &euro;</span>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Capital aportado (entrada)</label>
+                        <span id="capital-aportado">0 &euro;</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INGRESOS POR ALQUILER -->
+            <section class="card" id="ingresos-section">
+                <h2>Ingresos por Alquiler</h2>
+                <div class="form-group">
+                    <label for="alquiler-mensual">Alquiler mensual</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="alquiler-mensual" value="800" min="0" step="25">
+                        <span class="suffix">&euro;/mes</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="meses-ocupacion">Meses de ocupacion al año</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="meses-ocupacion" value="11" min="0" max="12" step="0.5">
+                        <span class="suffix">meses</span>
+                    </div>
+                </div>
+                <div class="form-group info-row">
+                    <label>Ingreso anual estimado</label>
+                    <span id="ingreso-anual" class="highlight">0 &euro;</span>
+                </div>
+            </section>
+
+            <!-- GASTOS ANUALES -->
+            <section class="card" id="gastos-anuales">
+                <h2>Gastos Anuales</h2>
+                <div class="form-group">
+                    <label for="ibi">IBI (Impuesto de Bienes Inmuebles)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="ibi" value="500" min="0" step="50">
+                        <span class="suffix">&euro;/año</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comunidad-gastos">Comunidad de propietarios</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="comunidad-gastos" value="60" min="0" step="10">
+                        <span class="suffix">&euro;/mes</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="seguro-hogar">Seguro del hogar</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="seguro-hogar" value="300" min="0" step="50">
+                        <span class="suffix">&euro;/año</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="mantenimiento">Mantenimiento y reparaciones</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="mantenimiento" value="1" min="0" max="10" step="0.5">
+                        <span class="suffix">% del precio</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="seguro-impago">Seguro de impago de alquiler</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="seguro-impago" value="0" min="0" step="50">
+                        <span class="suffix">&euro;/año</span>
+                    </div>
+                </div>
+                <div class="form-group total-row">
+                    <label>Total gastos anuales</label>
+                    <span id="total-gastos-anuales" class="total-value">0 &euro;</span>
+                </div>
+            </section>
+
+            <!-- FISCALIDAD -->
+            <section class="card" id="fiscalidad-section">
+                <h2>Fiscalidad (IRPF)</h2>
+                <div class="form-group">
+                    <label for="tramo-irpf">Tramo marginal IRPF</label>
+                    <select id="tramo-irpf">
+                        <option value="19">19% (hasta 12.450&euro;)</option>
+                        <option value="24" selected>24% (12.450 - 20.200&euro;)</option>
+                        <option value="30">30% (20.200 - 35.200&euro;)</option>
+                        <option value="37">37% (35.200 - 60.000&euro;)</option>
+                        <option value="45">45% (60.000 - 300.000&euro;)</option>
+                        <option value="47">47% (mas de 300.000&euro;)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reduccion-alquiler">Reduccion por alquiler vivienda habitual</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="reduccion-alquiler" value="50" min="0" max="90" step="10">
+                        <span class="suffix">%</span>
+                    </div>
+                    <small class="info-text">50% general (contratos desde 2024). Puede ser hasta 90% en zonas tensionadas.</small>
+                </div>
+                <div class="form-group info-row">
+                    <label>IRPF estimado anual</label>
+                    <span id="irpf-estimado" class="total-value">0 &euro;</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- RESULTADOS -->
+        <section class="card results-card" id="resultados">
+            <h2>Resultados</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">Inversion total</span>
+                    <span class="result-value" id="inversion-total">0 &euro;</span>
+                    <small class="result-detail" id="inversion-detail"></small>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Capital propio necesario</span>
+                    <span class="result-value" id="capital-propio">0 &euro;</span>
+                    <small class="result-detail" id="capital-propio-detail"></small>
+                </div>
+                <div class="result-item highlight-box">
+                    <span class="result-label">Rentabilidad bruta</span>
+                    <span class="result-value big" id="rent-bruta">0%</span>
+                    <small class="result-detail">Alquiler anual / Precio compra</small>
+                </div>
+                <div class="result-item highlight-box">
+                    <span class="result-label">Rentabilidad neta</span>
+                    <span class="result-value big" id="rent-neta">0%</span>
+                    <small class="result-detail">Despues de gastos e impuestos</small>
+                </div>
+                <div class="result-item highlight-box accent">
+                    <span class="result-label">Rentabilidad neta sobre capital invertido (ROCE)</span>
+                    <span class="result-value big" id="roce">0%</span>
+                    <small class="result-detail">Beneficio neto / Capital propio aportado</small>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Cash Flow mensual</span>
+                    <span class="result-value" id="cashflow-mensual">0 &euro;</span>
+                    <small class="result-detail">Ingresos - Gastos - Hipoteca - IRPF</small>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Cash Flow anual</span>
+                    <span class="result-value" id="cashflow-anual">0 &euro;</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Años para recuperar la inversion</span>
+                    <span class="result-value" id="payback">0</span>
+                    <small class="result-detail">Solo con cash flow positivo</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- TABLA RESUMEN ANUAL -->
+        <section class="card" id="resumen-anual">
+            <h2>Desglose Anual (Primeros 10 años)</h2>
+            <div class="table-wrapper">
+                <table id="tabla-anual">
+                    <thead>
+                        <tr>
+                            <th>Año</th>
+                            <th>Ingresos</th>
+                            <th>Gastos</th>
+                            <th>Hipoteca</th>
+                            <th>IRPF</th>
+                            <th>Cash Flow</th>
+                            <th>Cash Flow Acum.</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Herramienta orientativa. Consulta con un profesional antes de tomar decisiones de inversion.</p>
+        <p>Los impuestos y tipos pueden variar. Datos actualizados para España 2024-2025.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
