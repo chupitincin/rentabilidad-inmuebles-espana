@@ -202,23 +202,35 @@ function calcular() {
     }
 
     // Tabla anual
-    generarTablaAnual(ingresoAnual, totalGastosAnuales, cuotaAnual, irpfAnual, cashflowAnual);
+    const anosHipoteca = conHipoteca ? val('anos-hipoteca') : 0;
+    const interesAnual = conHipoteca && anosHipoteca > 0 ? totalIntereses / anosHipoteca : 0;
+    generarTablaAnual(ingresoAnual, totalGastosAnuales, cuotaAnual, anosHipoteca, irpfAnual, tramoIrpf, reduccionAlquiler, ibi, comunidadGastos, seguroHogar, mantenimiento, seguroImpago, interesAnual);
 }
 
-function generarTablaAnual(ingresos, gastos, hipoteca, irpf, cashflow) {
+function generarTablaAnual(ingresos, gastos, hipoteca, anosHipoteca, irpf, tramoIrpf, reduccionAlquiler, ibi, comunidadGastos, seguroHogar, mantenimiento, seguroImpago, interesAnualHipoteca) {
     const tbody = document.querySelector('#tabla-anual tbody');
     tbody.innerHTML = '';
 
     let acumulado = 0;
     for (let i = 1; i <= 10; i++) {
+        const hipotecaAnio = (anosHipoteca > 0 && i <= anosHipoteca) ? hipoteca : 0;
+
+        // Recalcular IRPF segun si hay hipoteca ese año (intereses deducibles)
+        const interesDeducible = (anosHipoteca > 0 && i <= anosHipoteca) ? interesAnualHipoteca : 0;
+        const gastosDeducibles = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago + interesDeducible;
+        const rendimientoNeto = Math.max(0, ingresos - gastosDeducibles);
+        const rendimientoReducido = rendimientoNeto * (1 - reduccionAlquiler);
+        const irpfAnio = rendimientoReducido * tramoIrpf;
+
+        const cashflow = ingresos - gastos - hipotecaAnio - irpfAnio;
         acumulado += cashflow;
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${i}</td>
             <td class="positive">${fmt(ingresos)} \u20AC</td>
             <td class="negative">-${fmt(gastos)} \u20AC</td>
-            <td class="negative">${hipoteca > 0 ? '-' + fmt(hipoteca) + ' \u20AC' : '-'}</td>
-            <td class="negative">-${fmt(irpf)} \u20AC</td>
+            <td class="negative">${hipotecaAnio > 0 ? '-' + fmt(hipotecaAnio) + ' \u20AC' : '-'}</td>
+            <td class="negative">-${fmt(irpfAnio)} \u20AC</td>
             <td class="${cashflow >= 0 ? 'positive' : 'negative'}">${fmt(cashflow)} \u20AC</td>
             <td class="${acumulado >= 0 ? 'positive' : 'negative'}">${fmt(acumulado)} \u20AC</td>
         `;
