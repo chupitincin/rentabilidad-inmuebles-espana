@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Rentabilidad Inmobiliaria - España</title>
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 </head>
 <body>
@@ -269,12 +269,12 @@
                         <span id="irnr-deducibles">Si (UE/EEE)</span>
                     </div>
                     <div class="form-group">
-                        <label for="valor-catastral">Valor catastral (para imputacion renta si vacante)</label>
+                        <label for="pct-catastral">Valor catastral (% del precio de compra)</label>
                         <div class="input-wrapper">
-                            <input type="number" id="valor-catastral" value="50000" min="0" step="1000">
-                            <span class="suffix">&euro;</span>
+                            <input type="range" id="pct-catastral" value="50" min="20" max="80" step="5" class="range-input">
+                            <span class="suffix" id="pct-catastral-label">50%</span>
                         </div>
-                        <small class="info-text">Si el inmueble esta vacio, Hacienda imputa una renta del 1,1%-2% del valor catastral.</small>
+                        <small class="info-text">Estimacion: <strong id="valor-catastral-estimado">0 &euro;</strong> &mdash; Suele estar entre el 40-60% del precio de mercado.</small>
                     </div>
                 </div>
 
@@ -362,6 +362,6 @@
         <p>Los impuestos y tipos pueden variar. Datos actualizados para España 2024-2025.</p>
     </footer>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>

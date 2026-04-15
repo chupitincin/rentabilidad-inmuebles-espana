@@ -208,10 +208,15 @@ function calcular() {
             irpfAnual = ingresoAnual * tramoIrpf;
         }
 
+        // Valor catastral estimado
+        const pctCatastral = val('pct-catastral');
+        const valorCatastral = precio * pctCatastral / 100;
+        $('pct-catastral-label').textContent = pctCatastral + '%';
+        $('valor-catastral-estimado').textContent = fmt(valorCatastral) + ' \u20AC';
+
         // Renta imputada por meses vacios (no residentes)
         const mesesVacios = 12 - mesesOcupacion;
         if (mesesVacios > 0) {
-            const valorCatastral = val('valor-catastral');
             // 1.1% si valor catastral revisado (posterior a 1994), 2% si no
             const pctImputacion = 1.1;
             rentaImputada = (valorCatastral * pctImputacion / 100) * (mesesVacios / 12);
