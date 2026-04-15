@@ -318,17 +318,54 @@ function generarTablaAnual(p) {
     }
 }
 
-// Bind all inputs to recalculate
+// ---- LocalStorage persistence ----
+const STORAGE_KEY = 'rentabilidad-inmuebles-datos';
+
+function guardarDatos() {
+    const inputs = document.querySelectorAll('input, select');
+    const datos = {};
+    inputs.forEach(input => {
+        if (!input.id) return;
+        if (input.type === 'checkbox') {
+            datos[input.id] = input.checked;
+        } else {
+            datos[input.id] = input.value;
+        }
+    });
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+    } catch (e) { /* ignore */ }
+}
+
+function cargarDatos() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const datos = JSON.parse(raw);
+        Object.keys(datos).forEach(id => {
+            const el = $(id);
+            if (!el) return;
+            if (el.type === 'checkbox') {
+                el.checked = datos[id];
+            } else {
+                el.value = datos[id];
+            }
+        });
+    } catch (e) { /* ignore */ }
+}
+
+// Bind all inputs to recalculate and save
 function bindInputs() {
     const inputs = document.querySelectorAll('input, select');
     inputs.forEach(input => {
-        input.addEventListener('input', calcular);
-        input.addEventListener('change', calcular);
+        input.addEventListener('input', () => { calcular(); guardarDatos(); });
+        input.addEventListener('change', () => { calcular(); guardarDatos(); });
     });
 }
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
+    cargarDatos();
     bindInputs();
     calcular();
 });
