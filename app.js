@@ -160,16 +160,73 @@ function calcular() {
     const totalGastosAnuales = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago;
     $('total-gastos-anuales').textContent = fmt(totalGastosAnuales) + ' \u20AC/año';
 
-    // IRPF
-    const tramoIrpf = val('tramo-irpf') / 100;
-    const reduccionAlquiler = val('reduccion-alquiler') / 100;
+    // FISCALIDAD
+    const residencia = $('residencia-fiscal').value;
+    const esResidente = residencia === 'residente';
+    const esUE = residencia === 'no-residente-ue';
 
-    // Base imponible: ingresos - gastos deducibles
-    const gastosDeducibles = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago +
-        (conHipoteca ? totalIntereses / val('anos-hipoteca') : 0); // interes anual deducible
-    const rendimientoNeto = Math.max(0, ingresoAnual - gastosDeducibles);
-    const rendimientoReducido = rendimientoNeto * (1 - reduccionAlquiler);
-    const irpfAnual = rendimientoReducido * tramoIrpf;
+    // Mostrar/ocultar campos segun residencia
+    $('campos-residente').style.display = esResidente ? 'block' : 'none';
+    $('campos-no-residente').style.display = esResidente ? 'none' : 'block';
+
+    let irpfAnual = 0;
+    let tramoIrpf = 0;
+    let reduccionAlquiler = 0;
+    let interesAnualDeducible = conHipoteca && val('anos-hipoteca') > 0 ? totalIntereses / val('anos-hipoteca') : 0;
+    let rentaImputada = 0;
+
+    if (esResidente) {
+        // IRPF residente
+        tramoIrpf = val('tramo-irpf') / 100;
+        reduccionAlquiler = val('reduccion-alquiler') / 100;
+
+        const gastosDeducibles = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago + interesAnualDeducible;
+        const rendimientoNeto = Math.max(0, ingresoAnual - gastosDeducibles);
+        const rendimientoReducido = rendimientoNeto * (1 - reduccionAlquiler);
+        irpfAnual = rendimientoReducido * tramoIrpf;
+    } else {
+        // IRNR - No residente
+        const tipoIRNR = esUE ? 19 : 24;
+        tramoIrpf = tipoIRNR / 100;
+        reduccionAlquiler = 0; // No aplica reduccion para no residentes
+
+        $('irnr-tipo').textContent = tipoIRNR + '%';
+
+        if (esUE) {
+            // UE/EEE: puede deducir gastos proporcionales a los meses alquilados
+            $('irnr-deducibles').textContent = 'Si (UE/EEE)';
+            $('irnr-info-text').innerHTML = '<strong>IRNR para residentes UE/EEE:</strong> Tipo fijo del 19%. Puedes deducir gastos directamente relacionados (IBI, comunidad, seguros, intereses hipoteca, amortizacion). Se tributa por el rendimiento neto. Modelo 210 trimestral.';
+
+            const gastosDeducibles = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago + interesAnualDeducible;
+            const rendimientoNeto = Math.max(0, ingresoAnual - gastosDeducibles);
+            irpfAnual = rendimientoNeto * tramoIrpf;
+        } else {
+            // Fuera UE: no puede deducir gastos, tributa sobre ingreso bruto
+            $('irnr-deducibles').textContent = 'No (fuera UE)';
+            $('irnr-info-text').innerHTML = '<strong>IRNR para residentes fuera de la UE:</strong> Tipo fijo del 24% sobre el <u>ingreso bruto</u> (sin deducir gastos). No aplica reduccion por alquiler de vivienda. Modelo 210 trimestral.';
+
+            irpfAnual = ingresoAnual * tramoIrpf;
+        }
+
+        // Renta imputada por meses vacios (no residentes)
+        const mesesVacios = 12 - mesesOcupacion;
+        if (mesesVacios > 0) {
+            const valorCatastral = val('valor-catastral');
+            // 1.1% si valor catastral revisado (posterior a 1994), 2% si no
+            const pctImputacion = 1.1;
+            rentaImputada = (valorCatastral * pctImputacion / 100) * (mesesVacios / 12);
+            const impuestoImputado = rentaImputada * tramoIrpf;
+            irpfAnual += impuestoImputado;
+        }
+
+        $('renta-imputada-row').style.display = (mesesOcupacion < 12 && !esResidente) ? 'flex' : 'none';
+        $('renta-imputada').textContent = fmt(rentaImputada) + ' \u20AC';
+    }
+
+    if (esResidente) {
+        $('renta-imputada-row').style.display = 'none';
+    }
+
     $('irpf-estimado').textContent = fmt(irpfAnual) + ' \u20AC/año';
 
     // Rentabilidades
@@ -203,32 +260,50 @@ function calcular() {
 
     // Tabla anual
     const anosHipoteca = conHipoteca ? val('anos-hipoteca') : 0;
-    const interesAnual = conHipoteca && anosHipoteca > 0 ? totalIntereses / anosHipoteca : 0;
-    generarTablaAnual(ingresoAnual, totalGastosAnuales, cuotaAnual, anosHipoteca, irpfAnual, tramoIrpf, reduccionAlquiler, ibi, comunidadGastos, seguroHogar, mantenimiento, seguroImpago, interesAnual);
+    generarTablaAnual({
+        ingresos: ingresoAnual,
+        gastos: totalGastosAnuales,
+        hipoteca: cuotaAnual,
+        anosHipoteca,
+        tramoIrpf,
+        reduccionAlquiler,
+        ibi, comunidadGastos, seguroHogar, mantenimiento, seguroImpago,
+        interesAnualDeducible,
+        esResidente,
+        esUE,
+        rentaImputada
+    });
 }
 
-function generarTablaAnual(ingresos, gastos, hipoteca, anosHipoteca, irpf, tramoIrpf, reduccionAlquiler, ibi, comunidadGastos, seguroHogar, mantenimiento, seguroImpago, interesAnualHipoteca) {
+function generarTablaAnual(p) {
     const tbody = document.querySelector('#tabla-anual tbody');
     tbody.innerHTML = '';
 
     let acumulado = 0;
     for (let i = 1; i <= 10; i++) {
-        const hipotecaAnio = (anosHipoteca > 0 && i <= anosHipoteca) ? hipoteca : 0;
+        const hipotecaAnio = (p.anosHipoteca > 0 && i <= p.anosHipoteca) ? p.hipoteca : 0;
+        const interesDeducible = (p.anosHipoteca > 0 && i <= p.anosHipoteca) ? p.interesAnualDeducible : 0;
 
-        // Recalcular IRPF segun si hay hipoteca ese año (intereses deducibles)
-        const interesDeducible = (anosHipoteca > 0 && i <= anosHipoteca) ? interesAnualHipoteca : 0;
-        const gastosDeducibles = ibi + comunidadGastos + seguroHogar + mantenimiento + seguroImpago + interesDeducible;
-        const rendimientoNeto = Math.max(0, ingresos - gastosDeducibles);
-        const rendimientoReducido = rendimientoNeto * (1 - reduccionAlquiler);
-        const irpfAnio = rendimientoReducido * tramoIrpf;
+        let irpfAnio = 0;
+        if (p.esResidente) {
+            const gastosDeducibles = p.ibi + p.comunidadGastos + p.seguroHogar + p.mantenimiento + p.seguroImpago + interesDeducible;
+            const rendimientoNeto = Math.max(0, p.ingresos - gastosDeducibles);
+            irpfAnio = rendimientoNeto * (1 - p.reduccionAlquiler) * p.tramoIrpf;
+        } else if (p.esUE) {
+            const gastosDeducibles = p.ibi + p.comunidadGastos + p.seguroHogar + p.mantenimiento + p.seguroImpago + interesDeducible;
+            irpfAnio = Math.max(0, p.ingresos - gastosDeducibles) * p.tramoIrpf + (p.rentaImputada * p.tramoIrpf);
+        } else {
+            // Fuera UE: bruto sin deducciones
+            irpfAnio = p.ingresos * p.tramoIrpf + (p.rentaImputada * p.tramoIrpf);
+        }
 
-        const cashflow = ingresos - gastos - hipotecaAnio - irpfAnio;
+        const cashflow = p.ingresos - p.gastos - hipotecaAnio - irpfAnio;
         acumulado += cashflow;
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${i}</td>
-            <td class="positive">${fmt(ingresos)} \u20AC</td>
-            <td class="negative">-${fmt(gastos)} \u20AC</td>
+            <td class="positive">${fmt(p.ingresos)} \u20AC</td>
+            <td class="negative">-${fmt(p.gastos)} \u20AC</td>
             <td class="negative">${hipotecaAnio > 0 ? '-' + fmt(hipotecaAnio) + ' \u20AC' : '-'}</td>
             <td class="negative">-${fmt(irpfAnio)} \u20AC</td>
             <td class="${cashflow >= 0 ? 'positive' : 'negative'}">${fmt(cashflow)} \u20AC</td>

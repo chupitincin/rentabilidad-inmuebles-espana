@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Rentabilidad Inmobiliaria - España</title>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 </head>
 <body>
@@ -222,29 +222,69 @@
 
             <!-- FISCALIDAD -->
             <section class="card" id="fiscalidad-section">
-                <h2>Fiscalidad (IRPF)</h2>
+                <h2>Fiscalidad</h2>
                 <div class="form-group">
-                    <label for="tramo-irpf">Tramo marginal IRPF</label>
-                    <select id="tramo-irpf">
-                        <option value="19">19% (hasta 12.450&euro;)</option>
-                        <option value="24" selected>24% (12.450 - 20.200&euro;)</option>
-                        <option value="30">30% (20.200 - 35.200&euro;)</option>
-                        <option value="37">37% (35.200 - 60.000&euro;)</option>
-                        <option value="45">45% (60.000 - 300.000&euro;)</option>
-                        <option value="47">47% (mas de 300.000&euro;)</option>
+                    <label for="residencia-fiscal">Residencia fiscal</label>
+                    <select id="residencia-fiscal">
+                        <option value="residente" selected>Residente fiscal en España</option>
+                        <option value="no-residente-ue">No residente - UE/EEE (Alemania, Francia, etc.)</option>
+                        <option value="no-residente-extra">No residente - Fuera UE (UK, USA, Latam, etc.)</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="reduccion-alquiler">Reduccion por alquiler vivienda habitual</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="reduccion-alquiler" value="50" min="0" max="90" step="10">
-                        <span class="suffix">%</span>
+
+                <!-- Campos para RESIDENTES -->
+                <div id="campos-residente">
+                    <div class="form-group">
+                        <label for="tramo-irpf">Tramo marginal IRPF</label>
+                        <select id="tramo-irpf">
+                            <option value="19">19% (hasta 12.450&euro;)</option>
+                            <option value="24" selected>24% (12.450 - 20.200&euro;)</option>
+                            <option value="30">30% (20.200 - 35.200&euro;)</option>
+                            <option value="37">37% (35.200 - 60.000&euro;)</option>
+                            <option value="45">45% (60.000 - 300.000&euro;)</option>
+                            <option value="47">47% (mas de 300.000&euro;)</option>
+                        </select>
                     </div>
-                    <small class="info-text">50% general (contratos desde 2024). Puede ser hasta 90% en zonas tensionadas.</small>
+                    <div class="form-group">
+                        <label for="reduccion-alquiler">Reduccion por alquiler vivienda habitual</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="reduccion-alquiler" value="50" min="0" max="90" step="10">
+                            <span class="suffix">%</span>
+                        </div>
+                        <small class="info-text">50% general (contratos desde 2024). Puede ser hasta 90% en zonas tensionadas.</small>
+                    </div>
                 </div>
-                <div class="form-group info-row">
-                    <label>IRPF estimado anual</label>
+
+                <!-- Info para NO RESIDENTES -->
+                <div id="campos-no-residente" style="display:none;">
+                    <div class="info-box">
+                        <p id="irnr-info-text"></p>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Tipo impositivo IRNR</label>
+                        <span id="irnr-tipo" class="highlight">19%</span>
+                    </div>
+                    <div class="form-group info-row">
+                        <label>Gastos deducibles</label>
+                        <span id="irnr-deducibles">Si (UE/EEE)</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="valor-catastral">Valor catastral (para imputacion renta si vacante)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="valor-catastral" value="50000" min="0" step="1000">
+                            <span class="suffix">&euro;</span>
+                        </div>
+                        <small class="info-text">Si el inmueble esta vacio, Hacienda imputa una renta del 1,1%-2% del valor catastral.</small>
+                    </div>
+                </div>
+
+                <div class="form-group info-row" style="margin-top: 0.5rem;">
+                    <label>Impuesto estimado anual</label>
                     <span id="irpf-estimado" class="total-value">0 &euro;</span>
+                </div>
+                <div class="form-group info-row" id="renta-imputada-row" style="display:none;">
+                    <label>Renta imputada (meses vacios)</label>
+                    <span id="renta-imputada" class="total-value">0 &euro;</span>
                 </div>
             </section>
         </div>
@@ -322,6 +362,6 @@
         <p>Los impuestos y tipos pueden variar. Datos actualizados para España 2024-2025.</p>
     </footer>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>

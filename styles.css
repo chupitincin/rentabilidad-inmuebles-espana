@@ -352,6 +352,22 @@ footer p {
     margin-bottom: 0.25rem;
 }
 
+/* Info box for non-residents */
+.info-box {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.82rem;
+    color: #92400e;
+    line-height: 1.5;
+}
+
+.info-box p {
+    margin: 0;
+}
+
 /* Number input arrows */
 input[type="number"]::-webkit-inner-spin-button {
     opacity: 0.5;
