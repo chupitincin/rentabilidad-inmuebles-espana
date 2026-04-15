@@ -321,15 +321,25 @@ function generarTablaAnual(p) {
 // ---- LocalStorage persistence ----
 const STORAGE_KEY = 'rentabilidad-inmuebles-datos';
 
+// IDs de campos editables por el usuario (excluir campos readonly/calculados)
+const CAMPOS_GUARDABLES = [
+    'precio-compra', 'tipo-vivienda', 'comunidad', 'reforma',
+    'notaria', 'registro', 'gestoria',
+    'con-hipoteca', 'porcentaje-financiado', 'anos-hipoteca', 'interes',
+    'alquiler-mensual', 'meses-ocupacion',
+    'ibi', 'comunidad-gastos', 'seguro-hogar', 'mantenimiento', 'seguro-impago',
+    'residencia-fiscal', 'tramo-irpf', 'reduccion-alquiler', 'pct-catastral'
+];
+
 function guardarDatos() {
-    const inputs = document.querySelectorAll('input, select');
     const datos = {};
-    inputs.forEach(input => {
-        if (!input.id) return;
-        if (input.type === 'checkbox') {
-            datos[input.id] = input.checked;
+    CAMPOS_GUARDABLES.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        if (el.type === 'checkbox') {
+            datos[id] = el.checked;
         } else {
-            datos[input.id] = input.value;
+            datos[id] = el.value;
         }
     });
     try {
@@ -340,9 +350,11 @@ function guardarDatos() {
 function cargarDatos() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
+        if (!raw) return false;
         const datos = JSON.parse(raw);
-        Object.keys(datos).forEach(id => {
+        let loaded = false;
+        CAMPOS_GUARDABLES.forEach(id => {
+            if (!(id in datos)) return;
             const el = $(id);
             if (!el) return;
             if (el.type === 'checkbox') {
@@ -350,8 +362,10 @@ function cargarDatos() {
             } else {
                 el.value = datos[id];
             }
+            loaded = true;
         });
-    } catch (e) { /* ignore */ }
+        return loaded;
+    } catch (e) { return false; }
 }
 
 // Bind all inputs to recalculate and save
@@ -368,4 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarDatos();
     bindInputs();
     calcular();
+    // Guardar tambien al cerrar/recargar como respaldo
+    window.addEventListener('beforeunload', guardarDatos);
 });
